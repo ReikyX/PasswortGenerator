@@ -1,81 +1,116 @@
-﻿namespace cerberus_pass;
+﻿using System.Text.Json;
+
+namespace cerberus_pass;
 
 public class PasswordManager
 {
-    private List<PasswordEntry> vault;
+  private List<PasswordEntry>? vault;
+  private const string vaultFilePath = "vault.cerberus";
+  public PasswordManager()
+  {
+    // vault = new List<PasswordEntry>();
+    // vault = new();
+    // vault = [];
+    if (File.Exists(vaultFilePath))
+      LoadVault();
+    else
+      vault = [];
+  }
+  public List<PasswordEntry> GetAll() => vault;
 
-    public PasswordManager()
+  public PasswordEntry? CreateEntry(
+    string title,
+    string login,
+    string password,
+    string website = "",
+    string note = "")
+  {
+    if (vault.Any(x => x.Title == title))
     {
-        // vault = new List<PasswordEntry>();
-        // vault = new();
-        // vault = [];
-        vault = [];
+      return null;
     }
+    var newEntry = new PasswordEntry(
+      title,
+      login,
+      password,
+      website,
+      note
+    );
+    vault.Add(newEntry);
+    SaveValt();
+    return newEntry;
+  }
 
-    public List<PasswordEntry> GetAll() => vault;
+  // GetEntry
+  public PasswordEntry GetEntry(string title) =>
+    vault.Find(x => x.Title == title);
 
-    public PasswordEntry? CreateEntry(
-      string title,
-      string login,
-      string password,
-      string website = "",
-      string note = "")
+
+  // UpdateEntry
+  public PasswordEntry UpdateEntry(string titleToChange, PasswordEntry newEntry)
+  {
+    var indexToUpdate = vault.FindIndex(
+      x => x.Title == titleToChange);
+    vault[indexToUpdate] = newEntry;
+    return vault[indexToUpdate];
+
+    // var entryToChange = vault.Find(x => x.Title == titleToChange);
+    // entryToChange = newEntry;
+  }
+
+  // DeleteEntry
+  public bool DeleteEntry(string titleToDelete)
+  {
+    var success = vault.RemoveAll(x => x.Title == titleToDelete) > 0;
+    if (success)
+      SaveValt();
+    return success;
+  }
+  /*
+  public bool DeleteEntry(string titleToDelete)
+  {
+    var deleteCount = 0;
+    for (int i = 0; i > vault.Count; i++)
     {
-        if (vault.Any(x => x.Title == title))
-        {
-            return null;
-        }
-        var newEntry = new PasswordEntry(
-          title,
-          login,
-          password,
-          website,
-          note
-        );
-        vault.Add(newEntry);
-        return newEntry;
+      if (vault[i].Title == titleToDelete)
+      {
+        vault.Remove(vault[i]);
+        deleteCount++;
+      }
     }
-
-    // GetEntry
-    public PasswordEntry GetEntry(string title) =>
-      vault.Find(x => x.Title == title);
-
-
-    // UpdateEntry
-    public PasswordEntry UpdateEntry(string titleToChange, PasswordEntry newEntry)
+    if (deleteCount > 0)
     {
-        var indexToUpdate = vault.FindIndex(
-          x => x.Title == titleToChange);
-        vault[indexToUpdate] = newEntry;
-        return vault[indexToUpdate];
-
-        // var entryToChange = vault.Find(x => x.Title == titleToChange);
-        // entryToChange = newEntry;
+      return true;
     }
-
-    // DeleteEntry
-    public bool DeleteEntry(string titleToDelete) =>
-      vault.RemoveAll(x => x.Title == titleToDelete) > 0;
-
-    /*
-    public bool DeleteEntry(string titleToDelete)
+    else
     {
-      var deleteCount = 0;
-      for (int i = 0; i > vault.Count; i++)
-      {
-        if (vault[i].Title == titleToDelete)
-        {
-          vault.Remove(vault[i]);
-          deleteCount++;
-        }
-      }
-      if (deleteCount > 0)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    } */
+      return false;
+    }
+  } */
+
+  // Save to File
+  // wer callt diese Funktion ?
+  public void SaveValt()
+  {
+    var options = new JsonSerializerOptions
+    {
+      WriteIndented = true
+    };
+    var json = JsonSerializer.Serialize
+    (
+      vault
+    );
+    File.WriteAllText(vaultFilePath, json);
+  }
+  // Load from File
+  // wer callt diese Funktion ?
+  private void LoadVault()
+  {
+    var json = File.ReadAllText(vaultFilePath);
+    vault = JsonSerializer.Deserialize<List<PasswordEntry>>(json) ?? [];
+    // ?? => Null-Coalescing Operator
+    // x = entweder ?? oder
+    // ==> wenn "entweder" == null, dann ist x = "oder"
+    // decrypt
+  }
 }

@@ -4,6 +4,9 @@ using cerberus_pass;
 
 var manager = new PasswordManager();
 
+// Load PasswordEntries from File
+// manager.LoadFromFile();
+
 Console.ForegroundColor = ConsoleColor.DarkRed;
 Console.WriteLine("Willkommen zu Cerberus-Pass!");
 Console.ResetColor();
@@ -121,6 +124,7 @@ do
             {
                 Console.WriteLine("Neuer Eintrag erfolgreich erstellt:");
                 Console.WriteLine(newEntry); // Gibt Type aus;
+                manager.SaveValt();
             }
             break;
         case MenuOptions.Update:
