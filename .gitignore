@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# personal ignores
+**/masterpass.txt
+
 # dotenv files
 .env
 
